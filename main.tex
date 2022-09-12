@@ -1,0 +1,21 @@
+\documentclass{article}
+
+\usepackage{import}
+\usepackage{enumitem}
+\usepackage{gensymb}
+
+\usepackage{amsmath}
+
+\newcommand{\recipe}[1]{\section*{#1}}
+
+\newcommand{\ingredients}[1]{\subsection*{Ingredients}\begin{tabular}{rcl}#1\end{tabular}}
+
+\newlist{instructions}{enumerate}{2}
+\setlist[instructions]{label=\arabic*, before=\raggedright}
+\newcommand{\preparation}[1]{\subsection*{Preparation}\begin{instructions}#1\end{instructions}}
+
+\begin{document}
+
+\import{}{recipes/crft}
+
+\end{document}
