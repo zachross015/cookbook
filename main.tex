@@ -1,12 +1,141 @@
-\documentclass{article}
+\documentclass[oneside]{book}
 
+\usepackage[margin=1in]{geometry}
 \usepackage{import}
 \usepackage{enumitem}
 \usepackage{gensymb}
+\usepackage{xkeyval}
+\usepackage{booktabs}
+\usepackage{fontawesome}
+\usepackage{ifthen}
+\usepackage{framed}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
 
 \usepackage{amsmath}
 
-\newcommand{\recipe}[1]{\section*{#1}}
+% Disable numbering for all sections/chapters/whatever
+\setcounter{secnumdepth}{0}
+
+
+% Help to construct tabular environments with a check
+\def\nutrient{}
+\newcommand{\checknut}[1]{\ifx#1\empty\else\def\nutrient{1}\fi}
+\newcommand{\ifmacroline}[4]{\ifx#1\empty\else#2 #1#3 & #4\\\midrule \fi}
+\newcommand{\ifmainline}[4]{\ifmacroline{#1}{\textbf{#2}}{#3}{#4}}
+\newcommand{\ifsideline}[4]{\ifmacroline{#1}{\quad {#2}}{#3}{#4}}
+
+% Construct optional arguments for placement and styling
+\makeatletter
+\define@key{rcp}{time}[]{\def\rcptime{#1}}
+\define@key{rcp}{servings}[]{\def\rcpservings{#1}}
+\define@key{rcp}{source}[]{\def\rcpsource{#1}}
+\define@key{rcp}{calories}[]{\def\rcpcals{#1}}
+\define@key{rcp}{fat}[]{\def\rcpfat{#1}}
+\define@key{rcp}{satfat}[]{\def\rcpsatfat{#1}}
+\define@key{rcp}{transfat}[]{\def\rcptransfat{#1}}
+\define@key{rcp}{cholesterol}[]{\def\rcpchol{#1}}
+\define@key{rcp}{sodium}[]{\def\rcpsod{#1}}
+\define@key{rcp}{carbs}[]{\def\rcpcarbs{#1}}
+\define@key{rcp}{fiber}[]{\def\rcpfiber{#1}}
+\define@key{rcp}{sugar}[]{\def\rcpsugar{#1}}
+\define@key{rcp}{protein}[]{\def\rcpprotein{#1}}
+\savekeys{rcp}{%
+    time,
+    servings,
+    source,
+    calories,
+    fat,
+    satfat,
+    transfat,
+    cholesterol,
+    sodium,
+    carbs,
+    fiber,
+    sugar,
+    protein
+}
+\newcommand*{\rcps}[1][]{%
+    \setkeys{rcp}{#1}
+}
+\rcps[%
+    time,
+    servings,
+    source,
+    calories,
+    fat,
+    satfat,
+    transfat,
+    cholesterol,
+    sodium,
+    carbs,
+    fiber,
+    sugar,
+    protein
+]
+\newenvironment{recipe}[2][]{%
+    \setkeys{rcp}{#1}
+    \markboth{#2}{}
+    
+    \section{#2}
+
+    % Construct the information panel minipage
+    \begin{minipage}[t]{0.28\textwidth}
+    \ifx\rcptime\empty
+    \else
+        \noindent\faHourglassStart\ \emph{\rcptime}  
+    \fi
+
+    \ifx\rcpservings\empty
+    \else
+        \noindent\faCutlery\ \emph{\rcpservings\ servings}  
+    \fi
+
+    % Only include the nutrition label if at least one of the nutrition items is
+    % used. I'm too lazy to figure out the efficient way to write this so here
+    % is the overly explicit.
+    \checknut{\rcptime}
+    \checknut{\rcpservings}
+    \checknut{\rcpsource}
+    \checknut{\rcpcals}
+    \checknut{\rcpfat}
+    \checknut{\rcpsatfat}
+    \checknut{\rcptransfat}
+    \checknut{\rcpchol}
+    \checknut{\rcpsod}
+    \checknut{\rcpcarbs}
+    \checknut{\rcpfiber}
+    \checknut{\rcpsugar}
+    \checknut{\rcpprotein}
+
+    \ifx\nutrition\empty
+    \else
+    \subsection*{Nutrition}
+        \ifx\rcpcals\empty\else{\bf Calories \hfill \rcpcals}\fi
+
+        \vspace{10pt}
+
+        \noindent\begin{tabular*}{\textwidth}{lr}
+        \toprule
+        \ifmainline{\rcpfat}{Fat}{g}{}
+        \ifsideline{\rcpsatfat}{Trans Fat}{g}{}
+        \ifsideline{\rcptransfat}{Saturated Fat}{g}{}
+        \ifmainline{\rcpchol}{Cholesterol}{mg}{}
+        \ifmainline{\rcpsod}{Sodium}{mg}{}
+        \ifmainline{\rcpcarbs}{Carbohydrates}{g}{}
+        \ifsideline{\rcpfiber}{Dietary Fiber}{g}{}
+        \ifsideline{\rcpsugar}{Total Sugars}{g}{}
+        \ifmainline{\rcpprotein}{Protein}{g}{}
+    \end{tabular*}
+    \fi
+
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\textwidth}
+        \begin{framed}
+        }{\end{framed}\end{minipage}}
+\makeatother
 
 \newcommand{\ingredients}[1]{\subsection*{Ingredients}\begin{tabular}{rcl}#1\end{tabular}}
 
@@ -14,8 +143,12 @@
 \setlist[instructions]{label=\arabic*, before=\raggedright}
 \newcommand{\preparation}[1]{\subsection*{Preparation}\begin{instructions}#1\end{instructions}}
 
+
 \begin{document}
 
-\import{}{recipes/crft}
+\tableofcontents
+
+\chapter{Breakfast}
+\include{recipes/crft}
 
 \end{document}
